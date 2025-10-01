@@ -4,6 +4,8 @@
 # Ignore Tailscale state and certs
 tailscale-data/
 
+node_modules/
+
 # Ignore logs
 *.log
 

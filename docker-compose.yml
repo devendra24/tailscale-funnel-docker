@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  tailscale:
+    image: tailscale/tailscale:stable
+    hostname: tailscale-node
+    volumes:
+      - ./tailscale-data:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+      - ./setup.sh:/setup.sh
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - DOMAIN=${DOMAIN}
+      - APP_PORT=${APP_PORT}
+    command: ["sh", "-c", "/setup.sh"]
+    privileged: true
+
+  app:
+    build: ./app
+    environment:
+      - PORT=${APP_PORT}
+    expose:
+      - "${APP_PORT}"
+    network_mode: "service:tailscale"
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./tailscale-data/certs:/etc/nginx/certs:ro
+    ports:
+      - "${NGINX_PORT}:443"
+    network_mode: "service:tailscale"
