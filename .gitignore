@@ -4,7 +4,11 @@
 # Ignore Tailscale state and certs
 tailscale-data/
 
-node_modules/
+app/node_modules/
+app/.vscode/
+app/.angular/
+app/dist/
+drone-data/
 
 # Ignore logs
 *.log

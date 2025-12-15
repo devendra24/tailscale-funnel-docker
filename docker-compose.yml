@@ -18,17 +18,47 @@ services:
     command: ["sh", "-c", "/setup.sh"]
     privileged: true
 
-  app:
-    build: ./app
-    environment:
-      - PORT=${APP_PORT}
-    # ❌ REMOVE ports and expose
-    network_mode: "service:tailscale"
-
   nginx:
     image: nginx:alpine
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./tailscale-data/certs:/etc/nginx/certs:ro
-    # ❌ REMOVE ports (we don’t expose 443 outside Docker)
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:REMOVE
     network_mode: "service:tailscale"
+    depends_on:
+      - tailscale
+  
+  drone-server:
+    image: drone/drone:2
+    volumes:
+    - ./drone-data:/data
+    environment:
+      - DRONE_DATABASE_DRIVER=sqlite3
+      - DRONE_DATABASE_DATASOURCE=/data/database.sqlite
+      - DRONE_GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - DRONE_GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+      - DRONE_SERVER_HOST=${DRONE_HOST}
+      - DRONE_SERVER_PROTO=https
+      - DRONE_LOGS_DEBUG=true
+    network_mode: "service:tailscale"
+    depends_on:
+      - nginx
+
+  drone-runner:
+    image: drone/drone-runner-docker:1
+    network_mode: "service:tailscale"
+    depends_on:
+      - drone-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DRONE_RPC_HOST=tailscale-node.chub-beta.ts.net
+      - DRONE_RPC_PROTO=https
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+      - DRONE_RUNNER_CAPACITY=3
+      - DRONE_RUNNER_NAME=tailscale-runner
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2g
+  

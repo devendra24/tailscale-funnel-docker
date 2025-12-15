@@ -1,0 +1,48 @@
+kind: pipeline
+type: docker
+name: build
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
+
+steps:
+  - name: install
+    image: node:20-alpine
+    commands:
+      - cd app
+      - npm install
+
+  - name: build
+    image: node:20-alpine
+    commands:
+      - cd app
+      - npm run build
+      - tar -czf app-build.tar.gz dist
+
+  - name: verify
+    image: alpine
+    commands:
+      - ls -lh app/app-build.tar.gz
+
+---
+kind: pipeline
+type: docker
+name: deploy
+
+depends_on:
+  - build
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
+
+steps:
+  - name: deploy
+    image: alpine
+    commands:
+      - echo "deploying..."
