@@ -3,10 +3,9 @@ type: docker
 name: build
 
 trigger:
-  branch:
-    - main
   event:
-    - push
+    - cron
+    - custom
 
 steps:
   - name: install
@@ -36,10 +35,9 @@ depends_on:
   - build
 
 trigger:
-  branch:
-    - main
   event:
-    - push
+    - cron
+    - custom
 
 steps:
   - name: deploy
