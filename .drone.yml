@@ -1,6 +1,12 @@
 kind: pipeline
 type: docker
-name: app-npm-build
+name: build
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
 
 steps:
   - name: install
@@ -20,3 +26,23 @@ steps:
     image: alpine
     commands:
       - ls -lh app/app-build.tar.gz
+
+---
+kind: pipeline
+type: docker
+name: deploy
+
+depends_on:
+  - build
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
+
+steps:
+  - name: deploy
+    image: alpine
+    commands:
+      - echo "deploying..."
