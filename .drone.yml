@@ -29,10 +29,53 @@ steps:
 ---
 kind: pipeline
 type: docker
-name: deploy
+name: UnitTest
 
 depends_on:
   - build
+
+trigger:
+  event:
+    - cron
+    - custom
+
+steps:
+  - name: UnitTest
+    image: alpine
+    commands:
+      - echo "deploying..."
+
+  - name: CodeQuality
+    image: alpine
+    commands:
+      - echo "deploying..."
+
+---
+kind: pipeline
+type: docker
+name: SystemIntegrationTest
+
+depends_on:
+  - UnitTest
+
+trigger:
+  event:
+    - cron
+    - custom
+
+steps:
+  - name: SystemIntegrationTest
+    image: alpine
+    commands:
+      - echo "deploying..."
+
+---
+kind: pipeline
+type: docker
+name: deploy
+
+depends_on:
+  - SystemIntegrationTest
 
 trigger:
   event:
