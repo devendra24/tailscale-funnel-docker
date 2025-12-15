@@ -6,6 +6,9 @@ tailscale-data/
 
 app/node_modules/
 app/.vscode/
+app/.angular/
+app/dist/
+drone-data/
 
 # Ignore logs
 *.log
