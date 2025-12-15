@@ -1,9 +1,22 @@
 kind: pipeline
 type: docker
-name: test
+name: app-npm-build
 
 steps:
-  - name: hello
+  - name: install
+    image: node:20-alpine
+    commands:
+      - cd app
+      - npm install
+
+  - name: build
+    image: node:20-alpine
+    commands:
+      - cd app
+      - npm run build
+      - tar -czf app-build.tar.gz dist
+
+  - name: verify
     image: alpine
     commands:
-      - echo "Drone runner is working 🎉"
+      - ls -lh app/app-build.tar.gz
