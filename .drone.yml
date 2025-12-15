@@ -14,7 +14,6 @@ steps:
       - cd app
       - npm install
       - npm run build
-      - tar -czf app-build.tar.gz dist
 
   - name: UnitTest
     image: alpine
@@ -45,11 +44,15 @@ trigger:
     - custom
 
 steps:
-  - name: SystemIntegrationTest
+  - name: build
     image: alpine
     commands:
       - echo "deploying..."
 
+  - name: Test
+    image: alpine
+    commands:
+      - echo "deploying..."
 ---
 kind: pipeline
 type: docker
