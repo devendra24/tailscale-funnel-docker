@@ -39,4 +39,19 @@ services:
     depends_on:
       - nginx
 
+  drone-runner:
+    image: drone/drone-runner-docker:1
+    network_mode: "service:tailscale"
+    depends_on:
+      - drone-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DRONE_RPC_HOST=tailscale-node.chub-beta.ts.net
+      - DRONE_RPC_PROTO=https
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+
+      - DRONE_RUNNER_CAPACITY=2
+      - DRONE_RUNNER_NAME=tailscale-runner
+
   

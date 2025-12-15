@@ -1,0 +1,9 @@
+kind: pipeline
+type: docker
+name: test
+
+steps:
+  - name: hello
+    image: alpine
+    commands:
+      - echo "Drone runner is working 🎉"
