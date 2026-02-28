@@ -6,13 +6,13 @@ steps:
       - npm install
       - npm run build
     when:
-      event: manual
-      environment: build
+      event: deployment
+      evaluate: CI_PIPELINE_DEPLOY_TARGET == "build"
 
   deploy:
     image: alpine
     commands:
       - echo "deploying..."
     when:
-      event: manual
-      environment: deploy
+      event: deployment
+      evaluate: CI_PIPELINE_DEPLOY_TARGET == "deploy"
