@@ -4,21 +4,29 @@ steps:
     commands:
       - echo "Running build stage"
     when:
-      event: manual
-      evaluate: STAGE == "build"
+      # Manual run with STAGE variable
+      - event: manual
+        evaluate: STAGE == "build"
+      # Deploy dropdown selection
+      - event: deployment
+        evaluate: CI_PIPELINE_DEPLOY_TARGET == "build"
 
   test:
     image: alpine
     commands:
       - echo "Running test stage"
     when:
-      event: manual
-      evaluate: STAGE == "test"
+      - event: manual
+        evaluate: STAGE == "test"
+      - event: deployment
+        evaluate: CI_PIPELINE_DEPLOY_TARGET == "test"
 
   deploy:
     image: alpine
     commands:
       - echo "Running deploy stage"
     when:
-      event: manual
-      evaluate: STAGE == "deploy"
+      - event: manual
+        evaluate: STAGE == "deploy"
+      - event: deployment
+        evaluate: CI_PIPELINE_DEPLOY_TARGET == "deploy"
