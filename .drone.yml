@@ -1,12 +1,13 @@
+---
 kind: pipeline
 type: docker
 name: build
 
 trigger:
-  branch:
-    - main
   event:
-    - push
+    - custom
+  target:
+    - build
 
 steps:
   - name: install
@@ -32,14 +33,11 @@ kind: pipeline
 type: docker
 name: deploy
 
-depends_on:
-  - build
-
 trigger:
-  branch:
-    - main
   event:
-    - push
+    - custom
+  target:
+    - deploy
 
 steps:
   - name: deploy
