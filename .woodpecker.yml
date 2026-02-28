@@ -2,17 +2,23 @@ steps:
   build:
     image: node:20-alpine
     commands:
-      - cd app
-      - npm install
-      - npm run build
+      - echo "Running build stage"
     when:
-      event: deployment
-      evaluate: CI_PIPELINE_DEPLOY_TARGET == "build"
+      event: manual
+      evaluate: STAGE == "build"
+
+  test:
+    image: alpine
+    commands:
+      - echo "Running test stage"
+    when:
+      event: manual
+      evaluate: STAGE == "test"
 
   deploy:
     image: alpine
     commands:
-      - echo "deploying..."
+      - echo "Running deploy stage"
     when:
-      event: deployment
-      evaluate: CI_PIPELINE_DEPLOY_TARGET == "deploy"
+      event: manual
+      evaluate: STAGE == "deploy"
