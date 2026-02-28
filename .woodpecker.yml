@@ -1,0 +1,31 @@
+steps:
+  install:
+    image: node:20-alpine
+    commands:
+      - cd app
+      - npm install
+    when:
+      event: manual
+
+  build:
+    image: node:20-alpine
+    commands:
+      - cd app
+      - npm run build
+      - tar -czf app-build.tar.gz dist
+    when:
+      event: manual
+
+  verify:
+    image: alpine
+    commands:
+      - ls -lh app/app-build.tar.gz
+    when:
+      event: manual
+
+  deploy:
+    image: alpine
+    commands:
+      - echo "deploying..."
+    when:
+      event: manual
