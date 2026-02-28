@@ -13,18 +13,27 @@ services:
       - NET_RAW
     environment:
       - TS_AUTHKEY=${TS_AUTHKEY}
-      - DOMAIN=${DOMAIN}
+      - HOSTNAME=${HOSTNAME}
       - APP_PORT=${APP_PORT}
+      - DOMAIN=${DOMAIN}
+
     command: ["sh", "-c", "/setup.sh"]
     privileged: true
+    networks:
+      - internal
 
   nginx:
     image: nginx:alpine
+    environment:
+      - APP_PORT=${APP_PORT}
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:REMOVE
-    network_mode: "service:tailscale"
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - tailscale
+    networks:
+      - internal
+      - proxy_net   # your future external network
+
   
   drone-server:
     image: drone/drone:2
@@ -39,26 +48,30 @@ services:
       - DRONE_SERVER_HOST=${DRONE_HOST}
       - DRONE_SERVER_PROTO=https
       - DRONE_LOGS_DEBUG=true
-    network_mode: "service:tailscale"
-    depends_on:
-      - nginx
+    networks:
+      - proxy_net
 
-  drone-runner:
-    image: drone/drone-runner-docker:1
-    network_mode: "service:tailscale"
-    depends_on:
-      - drone-server
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - DRONE_RPC_HOST=tailscale-node.chub-beta.ts.net
-      - DRONE_RPC_PROTO=https
-      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
-      - DRONE_RUNNER_CAPACITY=3
-      - DRONE_RUNNER_NAME=tailscale-runner
-    deploy:
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 2g
+  # drone-runner:
+  #   image: drone/drone-runner-docker:1
+  #   network_mode: "service:tailscale"
+  #   depends_on:
+  #     - drone-server
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   environment:
+  #     - DRONE_RPC_HOST=tailscale-node.chub-beta.ts.net
+  #     - DRONE_RPC_PROTO=https
+  #     - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+  #     - DRONE_RUNNER_CAPACITY=3
+  #     - DRONE_RUNNER_NAME=tailscale-runner
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: "2.0"
+  #         memory: 2g
   
+networks:
+  internal:
+    driver: bridge
+  proxy_net:
+    driver: bridge

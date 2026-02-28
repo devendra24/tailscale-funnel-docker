@@ -10,7 +10,7 @@ sleep 5
 tailscale up --authkey=${TS_AUTHKEY} --hostname=${HOSTNAME}
 
 # Enable Funnel for app port
-tailscale funnel ${APP_PORT}
+tailscale funnel http://nginx:${APP_PORT}
 
 # Wait a few seconds for Funnel to be ready
 sleep 5
